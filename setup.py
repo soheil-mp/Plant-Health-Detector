@@ -17,8 +17,6 @@ setup(
         "scikit-learn>=0.24.0",
         "Pillow>=8.0.0",
         "matplotlib>=3.3.0",
-        "torch>=1.9.0",
-        "torchvision>=0.10.0"
     ],
     entry_points={
         "console_scripts": [

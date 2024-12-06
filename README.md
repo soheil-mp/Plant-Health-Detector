@@ -24,7 +24,7 @@ Plant-Health-Detector/
 │   └── processed/     # Processed data
 ├── docs/              # Documentation
 ├── models/            # Trained models
-├── src/               # Source code
+├─�� src/               # Source code
 │   ├── plant_detector/
 │   ├── train.py
 │   └── predict.py
@@ -70,26 +70,38 @@ pip install -e .
 To train a new model:
 
 ```bash
-train-plant-detector --data_dir data/raw --epochs 50
+train-plant-detector --data_dir data/raw/plant_dataset/Plant_leave_diseases_dataset_without_augmentation --epochs 50
 ```
 
 Options:
-- `--data_dir`: Directory containing training data
+- `--data_dir`: Directory containing training data (with subdirectories for each class)
 - `--epochs`: Number of training epochs (default: 50)
 - `--batch_size`: Batch size for training (default: 32)
 - `--output_dir`: Directory to save models (default: models/)
+- `--workers`: Number of data loading workers (default: 4)
 
 ### Making Predictions
 
 For a single image:
 ```bash
-predict-plant-disease --model_path models/best_model.h5 --image path/to/image.jpg
+predict-plant-disease --model_path models/final_model.keras --image path/to/image.jpg
 ```
 
 For batch processing:
 ```bash
-predict-plant-disease --model_path models/best_model.h5 --input_dir path/to/images --output_dir results
+predict-plant-disease --model_path models/final_model.keras --input_dir path/to/images --output_dir results
 ```
+
+Options:
+- `--model_path`: Path to the trained model (.keras file)
+- `--image`: Path to single image for prediction
+- `--input_dir`: Directory containing images for batch prediction
+- `--output_dir`: Directory to save results (default: results/)
+
+The prediction output includes:
+- Disease name
+- Confidence score
+- Treatment recommendations
 
 ## Model Architecture
 

@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
+import json
 from PIL import Image
 
 class PlantDiseaseDetector:
@@ -12,7 +13,7 @@ class PlantDiseaseDetector:
             model_path (str, optional): Path to a pre-trained model. If None, uses default model.
         """
         self.model = None
-        self.class_names = []
+        self.class_names = {}
         self.image_size = (224, 224)  # Standard input size for most models
         
         if model_path and os.path.exists(model_path):
@@ -26,6 +27,14 @@ class PlantDiseaseDetector:
         """
         try:
             self.model = tf.keras.models.load_model(model_path)
+            
+            # Try to load class indices
+            class_indices_path = os.path.join(os.path.dirname(model_path), 'class_indices.json')
+            if os.path.exists(class_indices_path):
+                with open(class_indices_path, 'r') as f:
+                    self.class_names = json.load(f)
+                # Invert the dictionary to map indices to class names
+                self.class_names = {v: k for k, v in self.class_names.items()}
         except Exception as e:
             print(f"Error loading model: {e}")
             raise
@@ -76,14 +85,46 @@ class PlantDiseaseDetector:
             predicted_class = np.argmax(predictions[0])
             confidence = float(predictions[0][predicted_class])
             
-            # TODO: Replace with actual class names and treatments
+            # Get disease name from class index
+            disease_name = self.class_names.get(predicted_class, f"Disease_{predicted_class}")
+            
+            # Get treatment recommendation based on disease
+            treatment = self.get_treatment_recommendation(disease_name)
+            
             result = {
-                "disease": f"Disease_{predicted_class}",
+                "disease": disease_name,
                 "confidence": confidence,
-                "treatment": "Please consult a plant expert for treatment options."
+                "treatment": treatment
             }
             
             return result
         except Exception as e:
             print(f"Error analyzing image: {e}")
-            raise 
+            raise
+    
+    def get_treatment_recommendation(self, disease_name):
+        """Get treatment recommendation for a disease.
+        
+        Args:
+            disease_name (str): Name of the disease
+            
+        Returns:
+            str: Treatment recommendation
+        """
+        # Basic treatment recommendations
+        if "healthy" in disease_name.lower():
+            return "Plant appears healthy. Continue regular maintenance."
+        elif "blight" in disease_name.lower():
+            return "Remove infected leaves, improve air circulation, and consider applying fungicide."
+        elif "spot" in disease_name.lower():
+            return "Remove infected leaves and avoid overhead watering. Consider copper-based fungicides."
+        elif "rust" in disease_name.lower():
+            return "Remove infected plant material and apply appropriate fungicide. Maintain good air circulation."
+        elif "mold" in disease_name.lower():
+            return "Improve air circulation, reduce humidity, and consider applying fungicide."
+        elif "virus" in disease_name.lower():
+            return "Remove infected plants to prevent spread. Control insect vectors. No cure available."
+        elif "mite" in disease_name.lower():
+            return "Apply appropriate miticide. Increase humidity and remove heavily infested leaves."
+        else:
+            return "Please consult a plant expert for specific treatment options."

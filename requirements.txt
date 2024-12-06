@@ -1,7 +1,5 @@
 tensorflow==2.10.0
 tensorflow-gpu==2.10.0
-torch>=2.1.0
-torchvision>=0.16.0
 opencv-python>=4.0.0
 numpy>=1.19.0
 pandas>=1.0.0

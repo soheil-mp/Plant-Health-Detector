@@ -4,6 +4,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import json
 
 def setup_gpu():
     """Setup GPU for training if available."""
@@ -129,6 +130,13 @@ def train_model(args):
     final_model_path = os.path.join(args.output_dir, 'final_model.keras')
     model.save(final_model_path)
     print(f"Model saved to {final_model_path}")
+    
+    # Save class indices
+    class_indices = train_generator.class_indices
+    class_indices_path = os.path.join(args.output_dir, 'class_indices.json')
+    with open(class_indices_path, 'w') as f:
+        json.dump(class_indices, f)
+    print(f"Class indices saved to {class_indices_path}")
 
 def main():
     parser = argparse.ArgumentParser(description='Train plant disease detection model')
